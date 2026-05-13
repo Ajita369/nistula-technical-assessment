@@ -1,0 +1,38 @@
+### Availability + pricing
+POST http://localhost:3000/webhook/message
+Content-Type: application/json
+
+{
+  "source": "whatsapp",
+  "guest_name": "Rahul Sharma",
+  "message": "Is the villa available from April 20 to 24? What is the rate for 2 adults?",
+  "timestamp": "2026-05-05T10:30:00Z",
+  "booking_ref": "NIS-2024-0891",
+  "property_id": "villa-b1"
+}
+
+### Post-sales check-in
+POST http://localhost:3000/webhook/message
+Content-Type: application/json
+
+{
+  "source": "airbnb",
+  "guest_name": "Neha Gupta",
+  "message": "We arrive late tonight. What is the WiFi password and check-in time?",
+  "timestamp": "2026-05-06T19:45:00Z",
+  "booking_ref": "NIS-2024-1033",
+  "property_id": "villa-b1"
+}
+
+### Complaint
+POST http://localhost:3000/webhook/message
+Content-Type: application/json
+
+{
+  "source": "instagram",
+  "guest_name": "Amit Mehta",
+  "message": "The AC is not working and this is unacceptable. I want a refund for tonight.",
+  "timestamp": "2026-05-07T03:10:00Z",
+  "booking_ref": "NIS-2024-1108",
+  "property_id": "villa-b1"
+}
