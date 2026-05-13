@@ -1,7 +1,13 @@
-# Nistula Technical Assessment (Part 1)
+# Nistula Technical Assessment
 
 ## Overview
-This project implements the Part 1 webhook backend for the Nistula assessment. It accepts inbound guest messages, normalizes them into a unified schema, classifies the query type, calls the Claude API to draft a reply, and returns a confidence score with an action decision.
+This repository covers all three parts of the Nistula assessment:
+- Part 1: Express webhook backend that normalizes messages, classifies the query, calls Claude, and returns confidence + action.
+- Part 2: PostgreSQL schema for the unified messaging platform.
+- Part 3: 3am incident response and system design thinking answers.
+
+## Requirements
+- Node.js 18+
 
 ## Setup
 1. Install dependencies: `npm install`
@@ -10,7 +16,13 @@ This project implements the Part 1 webhook backend for the Nistula assessment. I
 
 The server listens on `http://localhost:3000` by default.
 
-## Endpoint
+## Environment variables
+- `PORT` (default: 3000)
+- `CLAUDE_API_KEY` (required)
+- `CLAUDE_MODEL` (default: claude-sonnet-4-20250514)
+- `CLAUDE_API_URL` (default: https://api.anthropic.com/v1/messages)
+
+## API
 `POST /webhook/message`
 
 ### Request payload
@@ -36,6 +48,12 @@ The server listens on `http://localhost:3000` by default.
 }
 ```
 
+## Testing (3 inputs)
+Use the three requests in `samples/requests.http`:
+- Availability + pricing
+- Post-sales check-in
+- Complaint
+
 ## Confidence scoring logic
 - The classifier assigns a base confidence based on matched keywords.
 - Very short AI replies reduce confidence.
@@ -45,8 +63,9 @@ The server listens on `http://localhost:3000` by default.
   - `agent_review` if 0.60 to 0.85
   - `escalate` if < 0.60 or complaint
 
-## Sample requests
-Use the examples in `samples/requests.http` (three inputs including complaint and pricing/availability).
+## Part 2 and Part 3
+- Database schema: `schema.sql`
+- Thinking answers: `thinking.md`
 
 ## Notes
 - The Claude API key is read from `.env` only. Do not commit secrets.
