@@ -9,8 +9,9 @@ const inboundMessageSchema = z.object({
   timestamp: z.string().refine((value) => !Number.isNaN(Date.parse(value)), {
     message: "timestamp must be ISO-8601"
   }),
-  booking_ref: z.string().trim().min(1).max(64),
-  property_id: z.string().trim().min(1).max(64)
+  // Optional: pre-sales guests contacting before a booking won't have these
+  booking_ref: z.string().trim().min(1).max(64).optional(),
+  property_id: z.string().trim().min(1).max(64).optional()
 });
 
 function validateInboundMessage(payload) {

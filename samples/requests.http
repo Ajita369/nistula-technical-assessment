@@ -1,4 +1,4 @@
-### Availability + pricing
+### 1 — Availability + pricing (pre_sales_availability)
 POST http://localhost:3000/webhook/message
 Content-Type: application/json
 
@@ -11,20 +11,24 @@ Content-Type: application/json
   "property_id": "villa-b1"
 }
 
-### Post-sales check-in
+###
+
+### 2 — Post-sales check-in (post_sales_checkin)
 POST http://localhost:3000/webhook/message
 Content-Type: application/json
 
 {
   "source": "airbnb",
   "guest_name": "Neha Gupta",
-  "message": "We arrive late tonight. What is the WiFi password and check-in time?",
+  "message": "We arrive late tonight. What is the WiFi password and what time is check-in?",
   "timestamp": "2026-05-06T19:45:00Z",
   "booking_ref": "NIS-2024-1033",
   "property_id": "villa-b1"
 }
 
-### Complaint
+###
+
+### 3 — Complaint (complaint → escalate)
 POST http://localhost:3000/webhook/message
 Content-Type: application/json
 
@@ -34,5 +38,47 @@ Content-Type: application/json
   "message": "The AC is not working and this is unacceptable. I want a refund for tonight.",
   "timestamp": "2026-05-07T03:10:00Z",
   "booking_ref": "NIS-2024-1108",
+  "property_id": "villa-b1"
+}
+
+###
+
+### 4 — Special request (special_request)
+POST http://localhost:3000/webhook/message
+Content-Type: application/json
+
+{
+  "source": "direct",
+  "guest_name": "Priya Nair",
+  "message": "We are celebrating our anniversary. Can we arrange a chef for dinner and some flower decoration?",
+  "timestamp": "2026-05-08T14:00:00Z",
+  "booking_ref": "NIS-2024-1215",
+  "property_id": "villa-b1"
+}
+
+###
+
+### 5 — General enquiry, no booking ref (general_enquiry, pre-sales)
+POST http://localhost:3000/webhook/message
+Content-Type: application/json
+
+{
+  "source": "booking_com",
+  "guest_name": "Sam Fernandez",
+  "message": "Do you allow pets at the villa? Is there parking available?",
+  "timestamp": "2026-05-09T09:20:00Z"
+}
+
+###
+
+### 6 — Pricing only (pre_sales_pricing)
+POST http://localhost:3000/webhook/message
+Content-Type: application/json
+
+{
+  "source": "whatsapp",
+  "guest_name": "Karan Malhotra",
+  "message": "What is the rate per night for 6 guests? Do you offer any discount for a 7-night stay?",
+  "timestamp": "2026-05-10T11:00:00Z",
   "property_id": "villa-b1"
 }

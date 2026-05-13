@@ -1,3 +1,6 @@
+// Static property context injected into every Claude request via the system prompt.
+// Keeping this in the system role (not the user message) gives Claude clearer
+// separation between ground-truth facts and the guest's actual question.
 const PROPERTY_CONTEXT = `Property: Villa B1, Assagao, North Goa
 Bedrooms: 3 | Max guests: 6 | Private pool: Yes
 Check-in: 2pm | Check-out: 11am
@@ -9,27 +12,42 @@ Chef on call: Yes, pre-booking required
 Availability April 20-24: Available
 Cancellation: Free up to 7 days before check-in`;
 
-function buildPrompt(normalized) {
-  return `You are a guest messaging assistant for Nistula. Draft a helpful, polite reply in plain text.
+/**
+ * Returns the system-level prompt that shapes Claude's persona and knowledge.
+ * This is passed as the top-level "system" field in the Claude API request,
+ * not as a message turn, which is the correct way to inject static context.
+ */
+function buildSystemPrompt() {
+  return `You are a warm, professional guest messaging assistant for Nistula, a luxury villa rental company in Goa.
 
-Context:
+Property context you must use for factual details:
 ${PROPERTY_CONTEXT}
 
-Guest message details:
-- Guest name: ${normalized.guest_name}
-- Source: ${normalized.source}
-- Booking reference: ${normalized.booking_ref}
-- Property ID: ${normalized.property_id}
-- Query type: ${normalized.query_type}
-- Message: ${normalized.message_text}
+Rules you must follow:
+- Address the guest by their first name.
+- Use only the property context above for specific facts (rates, passwords, times, availability).
+- If the guest asks for something not covered by the context, politely say you will check and respond shortly.
+- Keep replies concise (3-5 sentences) and conversational.
+- Never include JSON, field labels, or meta-commentary in your reply.
+- Plain text only — no markdown, no bullet points unless naturally appropriate.`;
+}
 
-Instructions:
-- Use only the context above for factual details.
-- If the message asks for anything outside context, say you will check and get back.
-- Keep the reply concise and professional.
-- Do not include JSON or labels in the reply.`;
+/**
+ * Returns the user-turn content describing the specific guest message.
+ * This is what changes per request; the system prompt stays constant.
+ */
+function buildUserContent(normalized) {
+  return `Please draft a reply to the following guest message.
+
+Guest name: ${normalized.guest_name}
+Channel: ${normalized.source}
+Booking reference: ${normalized.booking_ref || "N/A (pre-booking enquiry)"}
+Property: ${normalized.property_id || "Villa B1"}
+Query type: ${normalized.query_type}
+Guest message: "${normalized.message_text}"`;
 }
 
 module.exports = {
-  buildPrompt
+  buildSystemPrompt,
+  buildUserContent
 };

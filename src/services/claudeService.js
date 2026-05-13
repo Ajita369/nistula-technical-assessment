@@ -1,6 +1,7 @@
 const axios = require("axios");
-const { buildPrompt } = require("../utils/promptBuilder");
+const { buildSystemPrompt, buildUserContent } = require("../utils/promptBuilder");
 const { AppError } = require("../utils/errors");
+const logger = require("../utils/logger");
 
 const DEFAULT_API_URL = "https://api.anthropic.com/v1/messages";
 const DEFAULT_MODEL = "claude-sonnet-4-20250514";
@@ -13,12 +14,15 @@ async function draftReply(normalizedMessage) {
 
   const payload = {
     model: process.env.CLAUDE_MODEL || DEFAULT_MODEL,
-    max_tokens: 300,
-    temperature: 0.2,
+    max_tokens: 400,
+    // "system" is a top-level Claude API field — not a message role.
+    // Using it correctly keeps the static property context out of the
+    // conversation history and gives Claude cleaner instruction separation.
+    system: buildSystemPrompt(),
     messages: [
       {
         role: "user",
-        content: buildPrompt(normalizedMessage)
+        content: buildUserContent(normalizedMessage)
       }
     ]
   };
@@ -33,7 +37,7 @@ async function draftReply(normalizedMessage) {
           "x-api-key": apiKey,
           "anthropic-version": "2023-06-01"
         },
-        timeout: 15000
+        timeout: 20000
       }
     );
 
@@ -41,7 +45,7 @@ async function draftReply(normalizedMessage) {
       (block) => block.type === "text"
     );
     if (!textBlock?.text) {
-      throw new AppError("Malformed Claude response", 502, "ClaudeResponseError");
+      throw new AppError("Malformed Claude response — no text block returned", 502, "ClaudeResponseError");
     }
 
     return textBlock.text.trim();
@@ -50,8 +54,18 @@ async function draftReply(normalizedMessage) {
       throw error;
     }
 
-    const statusCode = error.response?.status || 502;
-    throw new AppError("Claude API request failed", statusCode, "ClaudeApiError");
+    // Log the upstream error detail for server-side debugging while returning
+    // a generic message to the caller so internal errors are not leaked.
+    const status = error.response?.status;
+    const detail = error.response?.data?.error?.message || error.message;
+    logger.error("Claude API error", { status, detail });
+
+    const statusCode = status || 502;
+    throw new AppError(
+      `Claude API request failed: ${detail || "unknown error"}`,
+      statusCode,
+      "ClaudeApiError"
+    );
   }
 }
 
