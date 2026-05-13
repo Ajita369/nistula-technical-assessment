@@ -63,10 +63,4 @@ Use the three requests in `samples/requests.http`:
   - `agent_review` if 0.60 to 0.85
   - `escalate` if < 0.60 or complaint
 
-## Part 2 and Part 3
-- Database schema: `schema.sql`
-- Thinking answers: `thinking.md`
 
-## Notes
-- The Claude API key is read from `.env` only. Do not commit secrets.
-- Property context is embedded in the prompt builder.
